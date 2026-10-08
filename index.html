@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kontofinder">
+<meta name="theme-color" content="#2f6fde">
+<title>Kontofinder</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232f6fde'/%3E%3Ccircle cx='44' cy='44' r='20' fill='none' stroke='white' stroke-width='9'/%3E%3Cline x1='58' y1='58' x2='78' y2='78' stroke='white' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232f6fde'/%3E%3Ccircle cx='44' cy='44' r='20' fill='none' stroke='white' stroke-width='9'/%3E%3Cline x1='58' y1='58' x2='78' y2='78' stroke='white' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--text:#1b1f27;--muted:#6b7280;--line:#e3e7ee;--accent:#2f6fde;--ok:#1f9d55;--warn:#d97706;--bad:#dc2626;--done:#6b7280}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#1a1d24;--text:#e8eaf0;--muted:#9aa1ad;--line:#2a2f3a;--accent:#5b8fff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) 0 calc(80px + env(safe-area-inset-bottom))}
+header{padding:16px 16px 8px}
+h1{margin:0;font-size:24px}
+.sub{color:var(--muted);font-size:14px}
+main{padding:0 16px;max-width:720px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer}
+.stat b{display:block;font-size:20px}
+.stat span{font-size:11px;color:var(--muted)}
+.stat.active{outline:2px solid var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.card h2{font-size:17px;margin:0 0 6px}
+input[type=text],input[type=email],input[type=search],select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font-size:16px}
+button,.btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:600;background:var(--accent);color:#fff;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.sec,button.sec{background:var(--bg);color:var(--text);border:1px solid var(--line)}
+button.danger{background:var(--bad)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}
+.hint{font-size:13px;color:var(--muted);margin:6px 0}
+.warn{font-size:13px;background:#fff4e0;color:#7a4b00;border-radius:8px;padding:8px 10px;margin:8px 0}
+@media (prefers-color-scheme:dark){.warn{background:#3a2a0d;color:#ffd38a}}
+.acc{display:flex;gap:12px;align-items:flex-start}
+.av{flex:0 0 40px;height:40px;border-radius:10px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;text-transform:uppercase}
+.acc .info{flex:1;min-width:0}
+.dom{font-weight:700;font-size:16px;word-break:break-all}
+.meta{font-size:13px;color:var(--muted);margin-top:2px;word-break:break-word}
+.badge{display:inline-block;font-size:12px;padding:2px 7px;border-radius:999px;background:var(--bg);border:1px solid var(--line);margin:4px 4px 0 0}
+.status{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.status button{flex:1;padding:7px 4px;font-size:13px;background:var(--bg);color:var(--text);border:1px solid var(--line);min-width:64px}
+.status button.on[data-s=offen]{background:var(--warn);color:#fff;border-color:var(--warn)}
+.status button.on[data-s=behalten]{background:var(--ok);color:#fff;border-color:var(--ok)}
+.status button.on[data-s=loeschen]{background:var(--bad);color:#fff;border-color:var(--bad)}
+.status button.on[data-s=geloescht]{background:var(--done);color:#fff;border-color:var(--done)}
+.links{display:flex;gap:14px;margin-top:8px;font-size:13px}
+.links a,.links button{color:var(--accent);background:none;padding:0;font-weight:500;font-size:13px}
+.acc.geloescht .dom{text-decoration:line-through;color:var(--muted)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:8px 16px calc(8px + env(safe-area-inset-bottom))}
+nav button{flex:1;background:none;color:var(--muted);font-size:14px}
+nav button.on{color:var(--accent)}
+.hidden{display:none!important}
+progress{width:100%;height:8px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+details summary{cursor:pointer;color:var(--accent);font-size:14px;margin-top:6px}
+details ol{padding-left:20px;font-size:14px;margin:6px 0}
+label.chk{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Kontofinder</h1>
+  <div class="sub">Alle Konten, die an deiner E-Mail hängen – alles bleibt auf dem Gerät.</div>
+</header>
+
+<main>
+<!-- LISTE -->
+<section id="view-list">
+  <div class="stats" id="stats"></div>
+  <div class="row">
+    <input type="search" id="q" placeholder="Suchen …">
+    <select id="sort" style="flex:0 0 120px">
+      <option value="name">A–Z</option>
+      <option value="mails">Meiste Mails</option>
+      <option value="last">Neueste</option>
+    </select>
+  </div>
+  <div id="list"></div>
+</section>
+
+<!-- IMPORT -->
+<section id="view-import" class="hidden">
+  <div class="card">
+    <h2>Deine E-Mail-Adresse(n)</h2>
+    <input type="text" id="myMails" placeholder="name@online.de, alt@web.de" autocomplete="email">
+    <div class="hint">Mehrere mit Komma trennen. Wird genutzt, um Passwort-Einträge mit deiner Adresse zu markieren.</div>
+  </div>
+
+  <div class="card">
+    <h2>🔑 Passwort-Export (CSV)</h2>
+    <div class="warn">Die CSV enthält deine Passwörter im Klartext. Die App liest nur Webseite und Benutzername und speichert <b>keine</b> Passwörter. Lösch die Datei danach.</div>
+    <label class="btn" for="csvFile">CSV auswählen</label>
+    <input type="file" id="csvFile" accept=".csv,text/csv" class="hidden">
+    <label class="chk"><input type="checkbox" id="onlyMine"> Nur Einträge mit meiner E-Mail übernehmen</label>
+    <details><summary>Wie exportiere ich?</summary>
+      <ol>
+        <li><b>Apple (Mac):</b> Passwörter-App → Ablage → Alle Passwörter in Datei exportieren.</li>
+        <li><b>Google/Chrome:</b> passwords.google.com → Zahnrad → Passwörter exportieren.</li>
+        <li><b>Firefox:</b> about:logins → ⋯ → Zugangsdaten exportieren.</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>✉️ Mail-Export (.mbox / .eml)</h2>
+    <div class="hint">Die App liest nur Absender, Betreff und Datum – keine Mail-Inhalte. Auch große Dateien gehen.</div>
+    <label class="btn" for="mailFile">Mail-Datei(en) auswählen</label>
+    <input type="file" id="mailFile" multiple class="hidden">
+    <label class="chk"><input type="checkbox" id="allSenders"> Alle Absender übernehmen (nicht nur Konto-Mails)</label>
+    <details><summary>Wie bekomme ich eine .mbox?</summary>
+      <ol>
+        <li><b>Apple Mail (Mac):</b> 1&amp;1-Konto einrichten, Postfach rechtsklicken → Postfach exportieren. Im entstandenen Ordner die Datei <i>mbox</i> wählen.</li>
+        <li><b>Thunderbird:</b> Add-on „ImportExportTools NG“ → Ordner exportieren (mbox).</li>
+        <li>Einzelne Mails als .eml gehen auch.</li>
+      </ol>
+      Tipp: Auch die Ordner <i>Archiv</i> und <i>Gelöscht</i> exportieren – dort liegen oft alte Willkommens-Mails.
+    </details>
+  </div>
+
+  <div class="card hidden" id="progressCard">
+    <div id="progressText">…</div>
+    <progress id="progress" max="1" value="0"></progress>
+  </div>
+
+  <div class="card">
+    <h2>➕ Von Hand hinzufügen</h2>
+    <div class="row">
+      <input type="text" id="manual" placeholder="z. B. amazon.de">
+      <button id="addManual" style="flex:0 0 auto">Hinzufügen</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Daten</h2>
+    <div class="row">
+      <button class="sec" id="exportCsv">Liste als CSV</button>
+      <button class="danger" id="wipe">Alles löschen</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button id="tab-list" class="on">📋 Konten</button>
+  <button id="tab-import">📥 Import</button>
+</nav>
+
+<script>
+"use strict";
+const KEY = "kontofinder-v1";
+const STATUS = [["offen","Offen"],["behalten","Behalten"],["loeschen","Löschen"],["geloescht","Gelöscht"]];
+const FREEMAIL = new Set(["gmail.com","googlemail.com","gmx.de","gmx.net","web.de","t-online.de","icloud.com","me.com","mac.com","outlook.com","outlook.de","hotmail.com","hotmail.de","live.com","live.de","yahoo.com","yahoo.de","aol.com","online.de","freenet.de","arcor.de","posteo.de","mailbox.org","proton.me","protonmail.com"]);
+const SL2 = new Set(["co.uk","org.uk","ac.uk","com.au","net.au","co.at","or.at","com.br","co.jp","co.nz","com.tr","com.cn","co.za","com.mx","co.in"]);
+const ACCOUNT_RE = /willkommen|welcome|best[äa]tig|confirm|verif|registr|konto|account|passw|kennwort|anmeld|login|log-in|sign.?in|sign.?up|aktivier|activat|sicherheitscode|security code|code f[üu]r|zugangsdaten|benutzername|username|zur[üu]cksetzen|reset/i;
+
+let db = load();
+let filter = "alle";
+
+function load(){
+  try { return JSON.parse(localStorage.getItem(KEY)) || {accounts:{}, myMails:""}; }
+  catch(e){ return {accounts:{}, myMails:""}; }
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch(e){ alert("Speichern fehlgeschlagen: " + e.message); }
+}
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function baseDomain(host){
+  host = String(host).toLowerCase().trim().replace(/^www\./,"").replace(/^\.+|\.+$/g,"");
+  const p = host.split(".");
+  if (p.length <= 2) return host;
+  const l2 = p.slice(-2).join(".");
+  return SL2.has(l2) ? p.slice(-3).join(".") : l2;
+}
+function hostFromUrl(u){
+  u = String(u||"").trim();
+  if (!u) return null;
+  try {
+    const url = new URL(/^[a-z]+:\/\//i.test(u) ? u : "https://" + u);
+    if (!/^https?:$/.test(url.protocol)) return null;
+    return url.hostname || null;
+  } catch(e){ return null; }
+}
+function myMailList(){
+  return db.myMails.split(/[,;\s]+/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+}
+function getAcc(domain){
+  if (!db.accounts[domain]) db.accounts[domain] = {domain, users:[], pw:false, mails:0, hits:0, first:null, last:null, subject:"", status:"offen", manual:false};
+  return db.accounts[domain];
+}
+
+/* ---------- CSV ---------- */
+function parseCSV(text){
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"'){ if (text[i+1] === '"'){ f += '"'; i++; } else q = false; }
+      else f += c;
+    } else if (c === '"') q = true;
+    else if (c === ","){ row.push(f); f = ""; }
+    else if (c === "\n"){ row.push(f); rows.push(row); row = []; f = ""; }
+    else if (c !== "\r") f += c;
+  }
+  if (f || row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+async function importCSV(file){
+  let text = await file.text();
+  text = text.replace(/^\uFEFF/, "");
+  const rows = parseCSV(text);
+  if (rows.length < 2) return alert("Die Datei ist leer oder kein CSV.");
+  const head = rows[0].map(h => h.toLowerCase().trim());
+  const find = (...keys) => head.findIndex(h => keys.some(k => h.includes(k)));
+  const iUrl = find("url","website","origin","adresse");
+  const iUser = find("username","user","login","benutzer","e-mail","email");
+  if (iUrl < 0) return alert("Keine URL-Spalte gefunden. Spalten: " + rows[0].join(", "));
+  const mine = myMailList(), onlyMine = $("onlyMine").checked;
+  let added = 0, skipped = 0;
+  for (const r of rows.slice(1)){
+    const host = hostFromUrl(r[iUrl]);
+    if (!host){ skipped++; continue; }
+    const user = iUser >= 0 ? (r[iUser]||"").trim() : "";
+    const isMine = mine.length && mine.includes(user.toLowerCase());
+    if (onlyMine && !isMine){ skipped++; continue; }
+    const d = baseDomain(host);
+    const isNew = !db.accounts[d];
+    const a = getAcc(d);
+    a.pw = true;
+    if (user && !a.users.includes(user)) a.users.push(user);
+    if (isNew) added++;
+  }
+  // Passwort-Spalten werden nirgends gespeichert
+  save(); render();
+  alert(`${added} neue Konten aus dem Passwort-Export. ${skipped} Einträge übersprungen (Apps, leer oder nicht deine Adresse).`);
+}
+
+/* ---------- Mail ---------- */
+function decodeMime(s){
+  return String(s||"").replace(/(\?=)\s+(=\?)/g,"$1$2").replace(/=\?([^?]+)\?([bBqQ])\?([^?]*)\?=/g,(m,cs,enc,txt)=>{
+    try {
+      let bytes;
+      if (enc.toUpperCase() === "B"){
+        const bin = atob(txt);
+        bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+      } else {
+        const t = txt.replace(/_/g," "), arr = [];
+        for (let i = 0; i < t.length; i++){
+          if (t[i] === "=" && /^[0-9a-f]{2}$/i.test(t.substr(i+1,2))){ arr.push(parseInt(t.substr(i+1,2),16)); i += 2; }
+          else arr.push(t.charCodeAt(i));
+        }
+        bytes = new Uint8Array(arr);
+      }
+      return new TextDecoder(cs.toLowerCase()).decode(bytes);
+    } catch(e){ return txt; }
+  });
+}
+function headersToObj(lines){
+  const h = {};
+  for (const l of lines){
+    const i = l.indexOf(":");
+    if (i < 1) continue;
+    const k = l.slice(0,i).trim().toLowerCase();
+    if (!(k in h)) h[k] = l.slice(i+1).trim();
+  }
+  return h;
+}
+async function scanMailFile(file, onMsg, onProgress){
+  const reader = file.stream().pipeThrough(new TextDecoderStream("utf-8")).getReader();
+  let buf = "", inH = true, hdr = [], prevBlank = true, done = 0;
+  const line = l => {
+    if (!inH){
+      if (prevBlank && l.startsWith("From ")){ inH = true; hdr = []; }
+      prevBlank = l === "";
+      return;
+    }
+    if (l === ""){
+      if (hdr.length) onMsg(headersToObj(hdr));
+      hdr = []; inH = false; prevBlank = true; return;
+    }
+    if (hdr.length === 0 && l.startsWith("From ")) return; // mbox-Trenner
+    if (/^[ \t]/.test(l) && hdr.length) hdr[hdr.length-1] += " " + l.trim();
+    else if (hdr.length < 200) hdr.push(l);
+  };
+  while (true){
+    const {value, done: end} = await reader.read();
+    if (end) break;
+    done += value.length;
+    buf += value;
+    const parts = buf.split("\n");
+    buf = parts.pop();
+    for (const p of parts) line(p.endsWith("\r") ? p.slice(0,-1) : p);
+    onProgress(Math.min(done / file.size, 1));
+  }
+  if (buf) line(buf);
+  if (inH && hdr.length) onMsg(headersToObj(hdr));
+}
+async function importMail(files){
+  const card = $("progressCard"), txt = $("progressText"), bar = $("progress");
+  card.classList.remove("hidden");
+  const mine = myMailList();
+  const stats = {};
+  let count = 0;
+  for (const file of files){
+    try {
+      await scanMailFile(file, h => {
+        count++;
+        const from = decodeMime(h["from"]);
+        const m = from.match(/<([^>]+@[^>]+)>/) || from.match(/([^\s<>"]+@[^\s<>"]+)/);
+        if (!m) return;
+        const addr = m[1].toLowerCase();
+        if (mine.includes(addr)) return;
+        const d = baseDomain(addr.split("@").pop());
+        if (!d || FREEMAIL.has(d)) return;
+        const subj = decodeMime(h["subject"]);
+        const date = h["date"] ? new Date(h["date"]) : null;
+        const t = date && !isNaN(date) ? date.getTime() : null;
+        const s = stats[d] || (stats[d] = {mails:0, hits:0, first:null, last:null, subject:""});
+        s.mails++;
+        if (ACCOUNT_RE.test(subj)){ s.hits++; if (!s.subject || (t && t < (s.hitT||Infinity))){ s.subject = subj; s.hitT = t; } }
+        if (t){ if (!s.first || t < s.first) s.first = t; if (!s.last || t > s.last) s.last = t; }
+      }, p => {
+        bar.value = p;
+        txt.textContent = `${file.name}: ${count.toLocaleString("de-DE")} Mails gelesen …`;
+      });
+    } catch(e){
+      alert(`Fehler bei ${file.name}: ${e.message}`);
+    }
+  }
+  const all = $("allSenders").checked;
+  let added = 0;
+  for (const [d, s] of Object.entries(stats)){
+    if (!all && s.hits === 0 && !db.accounts[d]) continue;
+    const isNew = !db.accounts[d];
+    const a = getAcc(d);
+    a.mails += s.mails; a.hits += s.hits;
+    if (s.subject && !a.subject) a.subject = s.subject;
+    if (s.first && (!a.first || s.first < a.first)) a.first = s.first;
+    if (s.last && (!a.last || s.last > a.last)) a.last = s.last;
+    if (isNew) added++;
+  }
+  save(); render();
+  txt.textContent = `Fertig: ${count.toLocaleString("de-DE")} Mails, ${added} neue Konten gefunden.`;
+  bar.value = 1;
+}
+
+/* ---------- UI ---------- */
+function fmtDate(t){ return t ? new Date(t).toLocaleDateString("de-DE",{month:"short",year:"numeric"}) : ""; }
+
+function render(){
+  const accs = Object.values(db.accounts);
+  const counts = {alle: accs.length};
+  STATUS.forEach(([k]) => counts[k] = accs.filter(a => a.status === k).length);
+  $("stats").innerHTML = [["alle","Alle"],...STATUS].map(([k,l]) =>
+    `<div class="stat ${filter===k?"active":""}" data-f="${k}"><b>${counts[k]}</b><span>${l}</span></div>`).join("");
+
+  const q = $("q").value.trim().toLowerCase();
+  const sort = $("sort").value;
+  let list = accs.filter(a => (filter === "alle" || a.status === filter) &&
+    (!q || a.domain.includes(q) || a.users.some(u => u.toLowerCase().includes(q)) || (a.subject||"").toLowerCase().includes(q)));
+  list.sort(sort === "mails" ? (a,b) => b.mails - a.mails :
+            sort === "last" ? (a,b) => (b.last||0) - (a.last||0) :
+            (a,b) => a.domain.localeCompare(b.domain));
+
+  if (!accs.length){
+    $("list").innerHTML = `<div class="empty">Noch keine Konten.<br>Unten auf <b>📥 Import</b> tippen und einen Passwort- oder Mail-Export laden.</div>`;
+    return;
+  }
+  if (!list.length){ $("list").innerHTML = `<div class="empty">Nichts gefunden.</div>`; return; }
+
+  const mine = myMailList();
+  $("list").innerHTML = list.map(a => {
+    const badges = [];
+    if (a.pw) badges.push("🔑 Passwort");
+    if (a.mails) badges.push(`✉️ ${a.mails} Mail${a.mails>1?"s":""}`);
+    if (a.manual) badges.push("✍️ manuell");
+    const users = a.users.map(u => mine.includes(u.toLowerCase()) ? `<b>${esc(u)}</b>` : esc(u)).join(", ");
+    const span = a.first ? `${fmtDate(a.first)}${a.last && fmtDate(a.last)!==fmtDate(a.first) ? " – " + fmtDate(a.last) : ""}` : "";
+    return `<div class="card acc ${a.status}" data-d="${esc(a.domain)}">
+      <div class="av">${esc(a.domain[0])}</div>
+      <div class="info">
+        <div class="dom">${esc(a.domain)}</div>
+        ${users ? `<div class="meta">👤 ${users}</div>` : ""}
+        ${a.subject ? `<div class="meta">„${esc(a.subject)}“</div>` : ""}
+        ${span ? `<div class="meta">📅 ${span}</div>` : ""}
+        <div>${badges.map(b => `<span class="badge">${b}</span>`).join("")}</div>
+        <div class="status">${STATUS.map(([k,l]) => `<button data-s="${k}" class="${a.status===k?"on":""}">${l}</button>`).join("")}</div>
+        <div class="links">
+          <a href="https://${esc(a.domain)}" target="_blank" rel="noopener">Seite öffnen</a>
+          <a href="https://www.google.com/search?q=${encodeURIComponent(a.domain + " Konto löschen")}" target="_blank" rel="noopener">Wie löschen?</a>
+          <button data-del="1">Entfernen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+$("stats").addEventListener("click", e => {
+  const s = e.target.closest(".stat"); if (!s) return;
+  filter = s.dataset.f; render();
+});
+$("list").addEventListener("click", e => {
+  const card = e.target.closest(".acc"); if (!card) return;
+  const d = card.dataset.d;
+  if (e.target.dataset.s){ db.accounts[d].status = e.target.dataset.s; save(); render(); }
+  else if (e.target.dataset.del){ if (confirm(`${d} aus der Liste entfernen?`)){ delete db.accounts[d]; save(); render(); } }
+});
+$("q").addEventListener("input", render);
+$("sort").addEventListener("change", render);
+
+$("myMails").value = db.myMails;
+$("myMails").addEventListener("change", e => { db.myMails = e.target.value; save(); render(); });
+
+$("csvFile").addEventListener("change", e => { const f = e.target.files[0]; if (f) importCSV(f); e.target.value = ""; });
+$("mailFile").addEventListener("change", e => { const f = [...e.target.files]; if (f.length) importMail(f); e.target.value = ""; });
+
+$("addManual").addEventListener("click", () => {
+  const v = $("manual").value.trim(); if (!v) return;
+  const host = hostFromUrl(v); if (!host) return alert("Bitte eine Domain wie amazon.de eingeben.");
+  const a = getAcc(baseDomain(host)); a.manual = true;
+  $("manual").value = ""; save(); render();
+  alert(`${a.domain} hinzugefügt.`);
+});
+
+$("exportCsv").addEventListener("click", () => {
+  const q = s => `"${String(s??"").replace(/"/g,'""')}"`;
+  const lines = [["Domain","Status","Benutzer","Passwort-Eintrag","Mails","Erste Mail","Letzte Mail","Betreff"].map(q).join(";")];
+  Object.values(db.accounts).sort((a,b)=>a.domain.localeCompare(b.domain)).forEach(a => lines.push(
+    [a.domain, STATUS.find(s=>s[0]===a.status)[1], a.users.join(" "), a.pw?"ja":"", a.mails||"",
+     a.first?new Date(a.first).toLocaleDateString("de-DE"):"", a.last?new Date(a.last).toLocaleDateString("de-DE"):"", a.subject].map(q).join(";")));
+  const blob = new Blob(["\uFEFF" + lines.join("\n")], {type:"text/csv"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob); link.download = "konten.csv"; link.click();
+});
+$("wipe").addEventListener("click", () => {
+  if (confirm("Wirklich alle Konten und Einstellungen löschen?")){ db = {accounts:{}, myMails:""}; $("myMails").value = ""; save(); render(); }
+});
+
+function tab(name){
+  $("view-list").classList.toggle("hidden", name !== "list");
+  $("view-import").classList.toggle("hidden", name !== "import");
+  $("tab-list").classList.toggle("on", name === "list");
+  $("tab-import").classList.toggle("on", name === "import");
+  window.scrollTo(0,0);
+}
+$("tab-list").addEventListener("click", () => tab("list"));
+$("tab-import").addEventListener("click", () => tab("import"));
+
+render();
+</script>
+</body>
+</html>
